@@ -4,13 +4,16 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import java.util.Calendar;
 import java.util.List;
@@ -39,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startWebIntent(View view) {
-        Uri webpage = Uri.parse("http://www.android.com");
+        Uri webpage = Uri.parse("http://users.hogent.be/de-wolf");
         Intent webIntent = new Intent(Intent.ACTION_VIEW, webpage);
         startActivity(webIntent);
     }
@@ -57,12 +60,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startCalendarIntent(View view) {
-        Intent calendarIntent = new Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI);
+        Intent calendarIntent = new Intent(Intent.ACTION_INSERT,
+                                           CalendarContract.Events.CONTENT_URI);
         Calendar beginTime = Calendar.getInstance();
         beginTime.set(2012, 0, 19, 7, 30);
         Calendar endTime = Calendar.getInstance();
         endTime.set(2012, 0, 19, 10, 30);
-        calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime.getTimeInMillis());
+        calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                                                             beginTime.getTimeInMillis());
         calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime.getTimeInMillis());
         calendarIntent.putExtra(CalendarContract.Events.TITLE, "Ninja class");
         calendarIntent.putExtra(CalendarContract.Events.EVENT_LOCATION, "Secret dojo");
@@ -78,7 +83,8 @@ public class MainActivity extends AppCompatActivity {
         //ComponentName appComponentName = shareIntent.resolveActivity(getPackageManager());
         //boolean isIntentSafe = appComponentName != null;
          PackageManager packageManager = getPackageManager();
-         List<ResolveInfo> resolvingActivities = packageManager.queryIntentActivities(shareIntent, 0);
+         List<ResolveInfo> resolvingActivities =
+                 packageManager.queryIntentActivities(shareIntent, 0);
          boolean isIntentSafe = resolvingActivities.size() > 0;
 
         Intent chooserIntent = Intent.createChooser(shareIntent, "Share");
@@ -121,6 +127,10 @@ public class MainActivity extends AppCompatActivity {
                 // Do something with the phone number...
                 Button startPickContactButton = (Button) findViewById(R.id.startPickContactButton);
                 startPickContactButton.setText("startPickContactIntent picked phonenumber: " + number);
+            } else if (requestCode == SHOW_CAMERA) {
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                ((ImageView)findViewById(R.id.imageView1)).setImageBitmap(imageBitmap);
             }
             else if (requestCode == PICK_SOME_RESULT_REQUEST) {
                 String stringResult = data.getExtras().getString(SecondActivity.RESULT_NAME);
@@ -131,7 +141,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    static final int PICK_SOME_RESULT_REQUEST = 2;  // The request code
+    private static final int SHOW_CAMERA = 2;
+    public void startTakePictureIntent(View view) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null)
+            startActivityForResult(takePictureIntent, SHOW_CAMERA);
+    }
+
+    static final int PICK_SOME_RESULT_REQUEST = 3;  // The request code
     public void startActivityForResult(View view) {
         Intent resultIntent = new Intent(this, SecondActivity.class);
         startActivityForResult(resultIntent, PICK_SOME_RESULT_REQUEST);
