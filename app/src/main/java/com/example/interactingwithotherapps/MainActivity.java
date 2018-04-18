@@ -27,23 +27,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startCallIntent(View view) {
-        Uri number = Uri.parse("tel:797204");
-        Intent callIntent = new Intent(Intent.ACTION_DIAL, number);
+        Uri numberUri = Uri.parse("tel:797204");
+        Intent callIntent = new Intent(Intent.ACTION_DIAL, numberUri);
         startActivity(callIntent);
     }
 
     public void startMapIntent(View view) {
         // Map point based on address
-        Uri location = Uri.parse("geo:0,0?q=Campus+Schoonmeersen+Hogeschool+Gent");
+        Uri locationUri = Uri.parse("geo:0,0?q=Campus+Schoonmeersen+Hogeschool+Gent");
         // Or map point based on latitude/longitude
-        // Uri location = Uri.parse("geo:37.422219,-122.08364?z=14"); // z param is zoom level
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
+        // Uri locationUri = Uri.parse("geo:37.422219,-122.08364?z=14"); // z param is zoom level
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, locationUri);
         startActivity(mapIntent);
     }
 
     public void startWebIntent(View view) {
-        Uri webpage = Uri.parse("http://users.hogent.be/de-wolf");
-        Intent webIntent = new Intent(Intent.ACTION_VIEW, webpage);
+        Uri webpageUri = Uri.parse("http://users.hogent.be/de-wolf");
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, webpageUri);
         startActivity(webIntent);
     }
 
@@ -82,14 +82,14 @@ public class MainActivity extends AppCompatActivity {
         // Verify it resolves
         //ComponentName appComponentName = shareIntent.resolveActivity(getPackageManager());
         //boolean isIntentSafe = appComponentName != null;
-         PackageManager packageManager = getPackageManager();
-         List<ResolveInfo> resolvingActivities =
-                 packageManager.queryIntentActivities(shareIntent, 0);
-         boolean isIntentSafe = resolvingActivities.size() > 0;
+        PackageManager packageManager = getPackageManager();
+        List<ResolveInfo> resolvingActivities =
+                packageManager.queryIntentActivities(shareIntent, 0);
+        boolean isIntentSafe = resolvingActivities.size() > 0;
 
-        Intent chooserIntent = Intent.createChooser(shareIntent, "Share");
         // Start an activity if it's safe
         if (isIntentSafe) {
+            Intent chooserIntent = Intent.createChooser(shareIntent, "Share");
             startActivity(chooserIntent);
         }
     }
@@ -101,13 +101,13 @@ public class MainActivity extends AppCompatActivity {
         pickContactIntent.setType(Phone.CONTENT_TYPE);
         startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST);
     }
-    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         // Make sure the request was successful
         if (resultCode == RESULT_OK) {
             // Check which request it is that we're responding to
             if (requestCode == PICK_CONTACT_REQUEST) {
                 // Get the URI that points to the selected contact
-                Uri contactUri = data.getData();
+                Uri contactUri = resultIntent.getData();
                 // We only need the NUMBER column, because there will be only one row in the result
                 String[] projection = {Phone.NUMBER};
 
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 // your app's UI thread. (For simplicity of the sample, this code doesn't do that.)
                 // Consider using CursorLoader to perform the query.
                 Cursor cursor = getContentResolver()
-                        .query(contactUri, projection, null, null, null);
+                    .query(contactUri, projection, null, null, null);
                 cursor.moveToFirst();
 
                 // Retrieve the phone number from the NUMBER column
@@ -128,12 +128,12 @@ public class MainActivity extends AppCompatActivity {
                 Button startPickContactButton = (Button) findViewById(R.id.startPickContactButton);
                 startPickContactButton.setText("startPickContactIntent picked phonenumber: " + number);
             } else if (requestCode == SHOW_CAMERA) {
-                Bundle extras = data.getExtras();
+                Bundle extras = resultIntent.getExtras();
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
                 ((ImageView)findViewById(R.id.imageView1)).setImageBitmap(imageBitmap);
             }
             else if (requestCode == PICK_SOME_RESULT_REQUEST) {
-                String stringResult = data.getExtras().getString(SecondActivity.RESULT_NAME);
+                String stringResult = resultIntent.getExtras().getString(SecondActivity.RESULT_NAME);
 
                 Button startActivityForResultButton = (Button) findViewById(R.id.startActivityForResultButton);
                 startActivityForResultButton.setText("startPickContactIntent retrieved: " + stringResult);

@@ -31,9 +31,9 @@ public class SecondActivity extends AppCompatActivity {
         String stringResult = button.getText().toString();
 
         // Create intent to deliver some kind of result data
-        Intent result = new Intent("com.example.interactingwithotherapps.RESULT_ACTION");
-        result.putExtra(RESULT_NAME, stringResult);
-        setResult(Activity.RESULT_OK, result);
+        Intent resultIntent = new Intent("com.example.interactingwithotherapps.RESULT_ACTION");
+        resultIntent.putExtra(RESULT_NAME, stringResult);
+        setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
 }
